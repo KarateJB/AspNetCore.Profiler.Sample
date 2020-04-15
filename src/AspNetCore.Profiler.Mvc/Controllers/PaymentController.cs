@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using AspNetCore.Profiler.Dal;
 using AspNetCore.Profiler.Dal.Models;
+using StackExchange.Profiling;
 
 namespace AspNetCore.Profiler.Mvc.Controllers
 {
@@ -58,10 +59,17 @@ namespace AspNetCore.Profiler.Mvc.Controllers
         {
             if (ModelState.IsValid)
             {
-                payment.Id = Guid.NewGuid();
-                payment.CreateOn = DateTimeOffset.UtcNow;
-                _dbcontext.Add(payment);
-                await _dbcontext.SaveChangesAsync();
+                // Custom timing for MiniProfiler
+                using (CustomTiming timing = MiniProfiler.Current.CustomTiming("MyLongRun", "Test command", executeType: "Test", includeStackTrace: true))
+                { 
+                    payment.Id = Guid.NewGuid();
+                    payment.CreateOn = DateTimeOffset.UtcNow;
+                    _dbcontext.Add(payment);
+                    await _dbcontext.SaveChangesAsync();
+
+                    timing.CommandString = $"Inserting {payment.Item} with amount {payment.Amount.ToString()}.";
+                }
+
                 return RedirectToAction(nameof(Index));
             }
             return View(payment);
