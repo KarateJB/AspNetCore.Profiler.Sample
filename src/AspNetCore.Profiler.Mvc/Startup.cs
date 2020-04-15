@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AspNetCore.Profiler.Dal;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -13,9 +15,12 @@ namespace AspNetCore.Profiler.Mvc
 {
     public class Startup
     {
+        //private readonly AppSettings appSettings = null;
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            //this.Configuration.Bind(this.appSettings);
         }
 
         public IConfiguration Configuration { get; }
@@ -24,6 +29,12 @@ namespace AspNetCore.Profiler.Mvc
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+
+            #region Entity framework
+            services.AddDbContext<DemoDbContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"), 
+                providerOptions => providerOptions.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null)));
+            #endregion
 
             #region MiniProfiler
             services.AddMiniProfiler(options =>
@@ -52,6 +63,8 @@ namespace AspNetCore.Profiler.Mvc
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseMiniProfiler();
 
             app.UseEndpoints(endpoints =>
             {
