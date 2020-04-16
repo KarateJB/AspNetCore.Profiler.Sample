@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using AspNetCore.Profiler.Dal;
+using AspNetCore.Profiler.Mvc.Utils;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -10,6 +12,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using StackExchange.Profiling;
+using StackExchange.Profiling.Storage;
 
 namespace AspNetCore.Profiler.Mvc
 {
@@ -30,9 +34,26 @@ namespace AspNetCore.Profiler.Mvc
         {
             services.AddControllersWithViews();
 
+            ////services.AddHttpClient("AuthHttpClient",
+            ////    config =>
+            ////    {
+            ////        config.Timeout = TimeSpan.FromMinutes(5);
+            ////        config.BaseAddress = new Uri("https://localhost:6001/");
+            ////    })
+            ////    .ConfigurePrimaryHttpMessageHandler(h =>
+            ////    {
+            ////        var handler = new HttpClientHandler();
+
+            ////        // Enable sending request to server with untrusted SSL cert 
+            ////        handler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+            ////        return handler;
+            ////    })
+            ////    .SetHandlerLifetime(TimeSpan.FromMinutes(5));
+
+
             #region Entity framework
             services.AddDbContext<DemoDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"), 
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"),
                 providerOptions => providerOptions.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null)));
             #endregion
 
@@ -40,7 +61,54 @@ namespace AspNetCore.Profiler.Mvc
             services.AddMiniProfiler(options =>
             {
                 options.RouteBasePath = "/profiler";
-            }).AddEntityFramework();
+
+                #region Styles
+
+                // Default: left
+                options.PopupRenderPosition = RenderPosition.BottomLeft;
+
+                // Default: 15
+                options.PopupMaxTracesToShow = 10;
+
+                // (Optional) Control storage
+                // (default is 30 minutes in MemoryCacheStorage)
+                (options.Storage as MemoryCacheStorage).CacheDuration = TimeSpan.FromMinutes(60);
+
+                // (Optional) Control which SQL formatter to use, InlineFormatter is the default
+                options.SqlFormatter = new StackExchange.Profiling.SqlFormatters.InlineFormatter();
+
+                #endregion
+
+                #region Include/Exclude tracking
+
+                // (Optional) You can disable "Connection Open()", "Connection Close()" (and async variant) tracking.
+                // (defaults to true, and connection opening/closing is tracked)
+                options.TrackConnectionOpenClose = false;
+
+                // Ignore tracing any class named "MyClass"
+                options.ExcludeType("MyClass");
+                // options.ExcludedTypes.Add("MyClass");
+
+                // Ignore tracing the assembly named "AspNetCore.Profiler.Core"
+                options.ExcludeAssembly("AspNetCore.Profiler.Core");
+                // options.ExcludedAssemblies.Add("AspNetCore.Profiler.Core");
+
+                // Ignore tracing the method(s) named "IgnoreMe"
+                options.ExcludeMethod("IgnoreMe");
+                // options.ExcludedMethods.Add("IgnoreMe");
+
+                #endregion
+
+                #region Authorization
+
+                // (Optional)To control authorization, you can use the Func<HttpRequest, bool> options:
+                // (default is everyone can access profilers)
+                options.ResultsAuthorize = request => request.CanSeeMiniProfiler();
+                options.ResultsListAuthorize = request => request.CanSeeMiniProfiler();
+
+                #endregion
+            })
+            .AddEntityFramework();
             #endregion
         }
 
