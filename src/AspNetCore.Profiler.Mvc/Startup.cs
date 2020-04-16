@@ -103,8 +103,8 @@ namespace AspNetCore.Profiler.Mvc
 
                 // (Optional)To control authorization, you can use the Func<HttpRequest, bool> options:
                 // (default is everyone can access profilers)
-                options.ResultsAuthorize = request => request.CanSeeMiniProfiler();
-                options.ResultsListAuthorize = request => request.CanSeeMiniProfiler();
+                options.ResultsAuthorize = request => request.IsAuthorizedToMiniProfiler();
+                options.ResultsListAuthorize = request => request.IsAuthorizedToMiniProfiler();
 
                 #endregion
             })
