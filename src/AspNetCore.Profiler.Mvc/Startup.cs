@@ -34,23 +34,6 @@ namespace AspNetCore.Profiler.Mvc
         {
             services.AddControllersWithViews();
 
-            ////services.AddHttpClient("AuthHttpClient",
-            ////    config =>
-            ////    {
-            ////        config.Timeout = TimeSpan.FromMinutes(5);
-            ////        config.BaseAddress = new Uri("https://localhost:6001/");
-            ////    })
-            ////    .ConfigurePrimaryHttpMessageHandler(h =>
-            ////    {
-            ////        var handler = new HttpClientHandler();
-
-            ////        // Enable sending request to server with untrusted SSL cert 
-            ////        handler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
-            ////        return handler;
-            ////    })
-            ////    .SetHandlerLifetime(TimeSpan.FromMinutes(5));
-
-
             #region Entity framework
             services.AddDbContext<DemoDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"),
@@ -65,7 +48,7 @@ namespace AspNetCore.Profiler.Mvc
                 #region Styles
 
                 // Default: left
-                options.PopupRenderPosition = RenderPosition.BottomLeft;
+                options.PopupRenderPosition = RenderPosition.BottomLeft; // Left|Right|BottomLeft|BottomRight
 
                 // Default: 15
                 options.PopupMaxTracesToShow = 10;
@@ -108,7 +91,7 @@ namespace AspNetCore.Profiler.Mvc
 
                 #endregion
             })
-            .AddEntityFramework();
+            .AddEntityFramework(); // Enable Entity Framework tracking
             #endregion
         }
 
