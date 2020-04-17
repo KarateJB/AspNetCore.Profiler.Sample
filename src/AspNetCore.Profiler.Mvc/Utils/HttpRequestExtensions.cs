@@ -15,7 +15,7 @@ namespace AspNetCore.Profiler.Mvc.Utils
         /// <returns>True(OK)/False(Not allowed)</returns>
         public static bool IsAuthorizedToMiniProfiler(this HttpRequest request)
         {
-            if (!request.Path.ToString().StartsWith("/profiler"))
+          if (!request.Path.ToString().StartsWith("/profiler", StringComparison.InvariantCultureIgnoreCase))
             {
                 return true;
             }

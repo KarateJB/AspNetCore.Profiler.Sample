@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using AspNetCore.Profiler.Dal.Models;
+using AspNetCore.Profiler.Dal.Utils;
 using Microsoft.EntityFrameworkCore;
 
 namespace AspNetCore.Profiler.Dal
@@ -19,7 +20,9 @@ namespace AspNetCore.Profiler.Dal
         #endregion
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        { 
+        {
+            // Seed
+            modelBuilder.Seed();
         }
     }
 }

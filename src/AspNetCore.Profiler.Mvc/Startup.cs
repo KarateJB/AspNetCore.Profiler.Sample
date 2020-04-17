@@ -45,20 +45,27 @@ namespace AspNetCore.Profiler.Mvc
             {
                 options.RouteBasePath = "/profiler";
 
-                #region Styles
-
-                // Default: left
-                options.PopupRenderPosition = RenderPosition.BottomLeft; // Left|Right|BottomLeft|BottomRight
-
-                // Default: 15
-                options.PopupMaxTracesToShow = 10;
+                #region Storage
 
                 // (Optional) Control storage
                 // (default is 30 minutes in MemoryCacheStorage)
                 (options.Storage as MemoryCacheStorage).CacheDuration = TimeSpan.FromMinutes(60);
 
+                // Enable SQL Server storage
+                // options.Storage = new SqlServerStorage(Configuration.GetConnectionString("DefaultConnection"));
+                #endregion
+
+                #region Styles
+
+                // Default: left
+                options.PopupRenderPosition = RenderPosition.Left; // Left|Right|BottomLeft|BottomRight
+
+                // Default: 15
+                options.PopupMaxTracesToShow = 10;
+
+
                 // (Optional) Control which SQL formatter to use, InlineFormatter is the default
-                options.SqlFormatter = new StackExchange.Profiling.SqlFormatters.InlineFormatter();
+                options.SqlFormatter = new StackExchange.Profiling.SqlFormatters.SqlServerFormatter();
 
                 #endregion
 
@@ -66,19 +73,22 @@ namespace AspNetCore.Profiler.Mvc
 
                 // (Optional) You can disable "Connection Open()", "Connection Close()" (and async variant) tracking.
                 // (defaults to true, and connection opening/closing is tracked)
-                options.TrackConnectionOpenClose = false;
+                options.TrackConnectionOpenClose = true;
 
                 // Ignore tracing any class named "MyClass"
                 options.ExcludeType("MyClass");
-                // options.ExcludedTypes.Add("MyClass");
+                options.ExcludedTypes.Add("MyClass");
 
-                // Ignore tracing the assembly named "AspNetCore.Profiler.Core"
-                options.ExcludeAssembly("AspNetCore.Profiler.Core");
+                // Ignore tracing the assembly named "MyAssembly"
+                options.ExcludeAssembly("MyAssembly");
                 // options.ExcludedAssemblies.Add("AspNetCore.Profiler.Core");
 
                 // Ignore tracing the method(s) named "IgnoreMe"
-                options.ExcludeMethod("IgnoreMe");
-                // options.ExcludedMethods.Add("IgnoreMe");
+                options.ExcludeMethod("MyMethod");
+                // options.ExcludedMethods.Add("MyMethod");
+
+                // Ignore tracing the request with the url path
+                options.IgnorePath("/Home");
 
                 #endregion
 
@@ -87,7 +97,7 @@ namespace AspNetCore.Profiler.Mvc
                 // (Optional)To control authorization, you can use the Func<HttpRequest, bool> options:
                 // (default is everyone can access profilers)
                 options.ResultsAuthorize = request => request.IsAuthorizedToMiniProfiler();
-                options.ResultsListAuthorize = request => request.IsAuthorizedToMiniProfiler();
+                options.ResultsListAuthorize = request => request.IsAuthorizedToMiniProfiler(); 
 
                 #endregion
             })
