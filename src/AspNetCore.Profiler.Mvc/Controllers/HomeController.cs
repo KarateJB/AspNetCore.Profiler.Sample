@@ -20,6 +20,8 @@ namespace AspNetCore.Profiler.Mvc.Controllers
 
         public IActionResult Index()
         {
+            // Update to get JWT from your Auth Server
+            this.Response.Cookies.Append("access-token", "xxxxxxx");
             return View();
         }
 
