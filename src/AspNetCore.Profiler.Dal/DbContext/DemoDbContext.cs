@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using AspNetCore.Profiler.Dal.Models;
+﻿using AspNetCore.Profiler.Dal.Models;
 using AspNetCore.Profiler.Dal.Utils;
 using Microsoft.EntityFrameworkCore;
 
