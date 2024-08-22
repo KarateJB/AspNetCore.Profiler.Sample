@@ -16,6 +16,12 @@ namespace AspNetCore.Profiler.Mvc.Controllers
         {
             // Update to get JWT from your Auth Server
             this.Response.Cookies.Append("access-token", "xxxxxxx");
+
+            // DEMO
+            //var traceId = Tracer.CurrentSpan.Context.TraceId;
+            //var spanId = Tracer.CurrentSpan.Context.SpanId;
+            //_logger.LogDebug($"TraceId: {traceId}, SpanId: {spanId}");
+
             return View();
         }
 

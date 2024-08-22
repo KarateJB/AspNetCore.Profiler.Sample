@@ -3,6 +3,9 @@ using AspNetCore.Profiler.Mvc.Utils;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Profiling;
 using StackExchange.Profiling.Storage;
+using OpenTelemetry;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 namespace AspNetCore.Profiler.Mvc
 {
@@ -86,11 +89,19 @@ namespace AspNetCore.Profiler.Mvc
                 // (Optional)To control authorization, you can use the Func<HttpRequest, bool> options:
                 // (default is everyone can access profilers)
                 options.ResultsAuthorize = request => request.IsAuthorizedToMiniProfiler();
-                options.ResultsListAuthorize = request => request.IsAuthorizedToMiniProfiler(); 
+                options.ResultsListAuthorize = request => request.IsAuthorizedToMiniProfiler();
 
                 #endregion
             })
             .AddEntityFramework(); // Enable Entity Framework tracking
+            #endregion
+
+            #region OpenTelemetry
+            services.AddOpenTelemetry().WithTracing(
+            builder => builder
+                .AddAspNetCoreInstrumentation()
+                .AddAspNetCoreInstrumentation()
+                .AddConsoleExporter());
             #endregion
         }
 

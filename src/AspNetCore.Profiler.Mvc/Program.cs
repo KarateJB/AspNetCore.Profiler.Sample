@@ -1,12 +1,7 @@
-using System.Collections.Generic;
-using System.Linq;
 using AspNetCore.Profiler.Dal;
 using AspNetCore.Profiler.Mvc.Utils;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using NLog.Web;
 
 namespace AspNetCore.Profiler.Mvc
 {
@@ -49,7 +44,17 @@ namespace AspNetCore.Profiler.Mvc
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>();
-                });
+                    webBuilder.ConfigureKestrel(serverOptions =>
+                    {
+                        // Set properties and call methods on options
+                    })
+                    .UseStartup<Startup>();
+                })
+            .ConfigureLogging(logging =>
+            {
+                logging.ClearProviders();
+                logging.SetMinimumLevel(LogLevel.Trace);
+            })
+               .UseNLog();
     }
 }
