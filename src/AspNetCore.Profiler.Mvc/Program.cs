@@ -21,8 +21,8 @@ namespace AspNetCore.Profiler.Mvc
                 //var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
                 var dbContext = services.GetRequiredService<DemoDbContext>() as DemoDbContext;
 
-                var tableQueryRslt = dbContext.Payments.FromSqlRaw(
-                    "SELECT NEWID() as Id FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND  TABLE_NAME = 'MiniProfilers'");
+                var tableQueryRslt = dbContext.Tables.FromSqlRaw(
+                    "SELECT TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME, TABLE_TYPE FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND  TABLE_NAME = 'MiniProfilers'");
 
                 var tableQueryRsltList = tableQueryRslt.ToList();
                 var isExist = tableQueryRslt.Count() > 0;
@@ -73,7 +73,7 @@ namespace AspNetCore.Profiler.Mvc
                     config.AddUserSecrets<Program>();
                 }
 
-                onfig.Build();
+                config.Build();
             })
                .UseNLog();
     }
