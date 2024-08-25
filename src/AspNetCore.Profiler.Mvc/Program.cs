@@ -18,11 +18,13 @@ namespace AspNetCore.Profiler.Mvc
                 // Create MiniProfiler's profiling table
                 var configuration = services.GetRequiredService<IConfiguration>();
                 var connectionString = configuration.GetConnectionString("DefaultConnection");
+                //var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
                 var dbContext = services.GetRequiredService<DemoDbContext>() as DemoDbContext;
 
                 var tableQueryRslt = dbContext.Payments.FromSqlRaw(
                     "SELECT NEWID() as Id FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND  TABLE_NAME = 'MiniProfilers'");
 
+                var tableQueryRsltList = tableQueryRslt.ToList();
                 var isExist = tableQueryRslt.Count() > 0;
                 if (!isExist)
                 {
@@ -54,6 +56,24 @@ namespace AspNetCore.Profiler.Mvc
             {
                 logging.ClearProviders();
                 logging.SetMinimumLevel(LogLevel.Trace);
+            })
+            .ConfigureAppConfiguration((context, config) =>
+            {
+                var env = context.HostingEnvironment;
+
+                config.Sources.Clear();
+                config
+                .AddJsonFile($"appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+                .AddEnvironmentVariables();
+                //.AddCommandLine(args);
+
+                if (env.IsDevelopment())
+                {
+                    config.AddUserSecrets<Program>();
+                }
+
+                onfig.Build();
             })
                .UseNLog();
     }
