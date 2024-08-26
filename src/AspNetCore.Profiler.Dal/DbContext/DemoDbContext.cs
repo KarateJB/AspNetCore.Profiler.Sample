@@ -1,4 +1,3 @@
-using System;
 using AspNetCore.Profiler.Dal.Models;
 using AspNetCore.Profiler.Dal.Utils;
 using Microsoft.EntityFrameworkCore;
@@ -8,13 +7,11 @@ namespace AspNetCore.Profiler.Dal
     public class DemoDbContext : DbContext
     {
         private readonly DbContextOptions<DemoDbContext> options = null;
-        public DemoDbContext(DbContextOptions<DemoDbContext> options): base(options)
+        public DemoDbContext(DbContextOptions<DemoDbContext> options) : base(options)
         {
             this.options = options;
-            var conn = this.Database.GetDbConnection();
-            string connectionString = conn?.ConnectionString;
-            Console.WriteLine(connectionString);
-            // Get connection string from DbContextOptions
+            // var conn = this.Database.GetDbConnection();
+            // string connectionString = conn?.ConnectionString;
         }
 
         #region POCOs
@@ -24,6 +21,8 @@ namespace AspNetCore.Profiler.Dal
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // Exclude from migrations
+            modelBuilder.Entity<Table>().ToTable(nameof(Tables), t => t.ExcludeFromMigrations());
             // Seed
             modelBuilder.Seed();
         }
