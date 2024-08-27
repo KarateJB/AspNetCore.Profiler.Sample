@@ -17,7 +17,7 @@ public class HttpRequestLogFilter : ActionFilterAttribute
         string requestDetails = $"[{context.HttpContext.Request.Path}][{context.HttpContext.Request.Method}] {JsonConvert.SerializeObject(context.ActionArguments)}";
         try
         {
-            this.logger.LogDebug($"Request: {requestDetails}");
+            this.logger.LogDebug($"[Request] {requestDetails}");
             base.OnActionExecuting(context);
         }
         catch (System.Exception ex)
@@ -30,6 +30,7 @@ public class HttpRequestLogFilter : ActionFilterAttribute
     {
         try
         {
+            var statuscode = context.HttpContext.Response.StatusCode;
             string responseBody = context.Result switch
             {
                 ObjectResult result when result.Value != null => JsonConvert.SerializeObject(result.Value),
@@ -37,7 +38,7 @@ public class HttpRequestLogFilter : ActionFilterAttribute
                 ContentResult result when !string.IsNullOrEmpty(result.Content) => result.Content,
                 _ => string.Empty,
             };
-            this.logger.LogDebug($"Response: {responseBody}");
+            this.logger.LogDebug($"[Response][{statuscode}] {responseBody}");
             base.OnActionExecuted(context);
         }
         catch (System.Exception ex)
