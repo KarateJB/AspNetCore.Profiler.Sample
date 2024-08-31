@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using AspNetCore.Profiler.Dal;
 using AspNetCore.Profiler.Dal.Models;
 using StackExchange.Profiling;
@@ -7,17 +7,17 @@ namespace AspNetCore.Profiler.Mvc.Controllers
 {
     public class PaymentController : Controller
     {
-        private readonly DemoDbContext _dbcontext;
+        private readonly DemoDbContext dbContext;
 
-        public PaymentController(DemoDbContext context)
+        public PaymentController(DemoDbContext dbContext)
         {
-            _dbcontext = context;
+            this.dbContext = dbContext;
         }
 
         // GET: Payments
         public async Task<IActionResult> Index()
         {
-            return View(await _dbcontext.Payments.ToListAsync());
+            return View(await dbContext.Payments.ToListAsync());
         }
 
         // GET: Payments/Details/5
@@ -28,7 +28,7 @@ namespace AspNetCore.Profiler.Mvc.Controllers
                 return NotFound();
             }
 
-            var payment = await _dbcontext.Payments
+            var payment = await dbContext.Payments
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (payment == null)
             {
@@ -55,11 +55,11 @@ namespace AspNetCore.Profiler.Mvc.Controllers
             {
                 // Custom timing for MiniProfiler
                 using (CustomTiming timing = MiniProfiler.Current.CustomTiming("MyLongRun", "Test command", executeType: "Test", includeStackTrace: true))
-                { 
+                {
                     payment.Id = Guid.NewGuid();
                     payment.CreateOn = DateTimeOffset.UtcNow;
-                    _dbcontext.Add(payment);
-                    await _dbcontext.SaveChangesAsync();
+                    dbContext.Add(payment);
+                    await dbContext.SaveChangesAsync();
 
                     timing.CommandString = $"Inserting {payment.Item} with amount {payment.Amount.ToString()}.";
                 }
@@ -77,7 +77,7 @@ namespace AspNetCore.Profiler.Mvc.Controllers
                 return NotFound();
             }
 
-            var payment = await _dbcontext.Payments.FindAsync(id);
+            var payment = await dbContext.Payments.FindAsync(id);
             if (payment == null)
             {
                 return NotFound();
@@ -101,9 +101,9 @@ namespace AspNetCore.Profiler.Mvc.Controllers
             {
                 try
                 {
-                    this._dbcontext.Attach(payment);
-                    this._dbcontext.Update(payment);
-                    await _dbcontext.SaveChangesAsync();
+                    this.dbContext.Attach(payment);
+                    this.dbContext.Update(payment);
+                    await dbContext.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -129,7 +129,7 @@ namespace AspNetCore.Profiler.Mvc.Controllers
                 return NotFound();
             }
 
-            var payment = await _dbcontext.Payments
+            var payment = await dbContext.Payments
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (payment == null)
             {
@@ -144,15 +144,15 @@ namespace AspNetCore.Profiler.Mvc.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var payment = await _dbcontext.Payments.FindAsync(id);
-            _dbcontext.Payments.Remove(payment);
-            await _dbcontext.SaveChangesAsync();
+            var payment = await dbContext.Payments.FindAsync(id);
+            dbContext.Payments.Remove(payment);
+            await dbContext.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool PaymentExists(Guid id)
         {
-            return _dbcontext.Payments.Any(e => e.Id == id);
+            return dbContext.Payments.Any(e => e.Id == id);
         }
     }
 }
