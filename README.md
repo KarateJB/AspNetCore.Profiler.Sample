@@ -50,9 +50,9 @@ $ dotnet ef  --project ../AspNetCore.Profiler.Dal --startup-project . database u
 
 |   | URL | Description |
 |:-:|:----|:------------|
-| 1 | https://<host>/profiler/results       | Profiling result for the latest request |
-| 2 | https://<host>/profiler/results-index | Profiling results for stored requests |
-| 3 | https://<host>/profiler/results-list  | Profiling results in JSON for stored requests |
+| 1 | https://host/profiler/results       | Profiling result for the latest request |
+| 2 | https://host/profiler/results-index | Profiling results for stored requests |
+| 3 | https://host/profiler/results-list  | Profiling results in JSON for stored requests |
 
 
 ## Reference
