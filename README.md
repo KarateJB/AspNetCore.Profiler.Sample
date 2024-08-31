@@ -1,10 +1,9 @@
 # AspNetCore.Profiler.Sample
 
-## Tutorials
+## Features
 
-- [[ASP.NET Core] Profiling - MiniProfiler](https://karatejb.blogspot.com/2020/04/aspnet-core-profiling-miniprofiler.html)
-
-
+- [MiniProfiler](https://github.com/MiniProfiler)
+- [OpenTelemetry](https://github.com/open-telemetry)
 
 
 ## Database Migration
@@ -36,7 +35,7 @@ Use either the **environment variable** or dotnet-ef argument `--connection` to 
 
 ```s
 $ cd src/AspNetCore.Profiler.Mvc
-$ export ConnectionStrings__DefaultConnection="Server=xxx\\SQLEXPRESS;Database=demo;Trusted_Connection=True;TrustServerCertificate=True;"
+$ export ConnectionStrings__DefaultConnection="Server=localhost\\SQLEXPRESS;Database=demo;Trusted_Connection=True;TrustServerCertificate=True;"
 $ dotnet ef  --project ../AspNetCore.Profiler.Dal --startup-project . database update
 ```
 
@@ -44,5 +43,19 @@ $ dotnet ef  --project ../AspNetCore.Profiler.Dal --startup-project . database u
 
 ```s
 $ cd src/AspNetCore.Profiler.Mvc
-$ dotnet ef  --project ../AspNetCore.Profiler.Dal --startup-project . database update --connection "Server=xxx\\SQLEXPRESS;Database=demo;Trusted_Connection=True;TrustServerCertificate=True;"
+$ dotnet ef  --project ../AspNetCore.Profiler.Dal --startup-project . database update --connection "Server=localhost\\SQLEXPRESS;Database=demo;Trusted_Connection=True;TrustServerCertificate=True;"
 ```
+
+## Endpoints
+
+|   | URL | Description |
+|:-:|:----|:------------|
+| 1 | https://<host>/profiler/results       | Profiling result for the latest request |
+| 2 | https://<host>/profiler/results-index | Profiling results for stored requests |
+| 3 | https://<host>/profiler/results-list  | Profiling results in JSON for stored requests |
+
+
+## Reference
+
+- [[ASP.NET Core] Profiling - MiniProfiler](https://karatejb.blogspot.com/2020/04/aspnet-core-profiling-miniprofiler.html)
+

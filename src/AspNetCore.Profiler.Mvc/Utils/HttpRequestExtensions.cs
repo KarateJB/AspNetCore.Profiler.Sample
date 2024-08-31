@@ -37,8 +37,13 @@ public static class HttpRequestExtensions
             return false;
         }
 
-        // Validate JWT
+# if DEBUG
+        // Skip validation
+        return true;
+# else
+        // Validate JWT (OAuth2 server is required)
         return AccessTokenValidator.ValidateAsync(accessToken).Result;
+# endif
     }
 }
 
