@@ -3,9 +3,8 @@ using AspNetCore.Profiler.Mvc.Utils;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Profiling;
 using StackExchange.Profiling.Storage;
-using OpenTelemetry;
-using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using AspNetCore.Profiler.Mvc.Models;
 
 namespace AspNetCore.Profiler.Mvc
 {
@@ -28,6 +27,14 @@ namespace AspNetCore.Profiler.Mvc
             {
                 options.Filters.Add<HttpRequestLogFilter>();
             });
+
+            #region HttpClients
+            services.AddHttpClient(Consts.HttpClientDemo, client =>
+            {
+                client.BaseAddress = new Uri("https://localhost:5001");
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+            });
+            #endregion
 
             #region Entity framework
             services.AddDbContext<DemoDbContext>(options =>
