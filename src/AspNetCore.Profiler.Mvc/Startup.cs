@@ -3,6 +3,8 @@ using AspNetCore.Profiler.Mvc.Utils;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Profiling;
 using StackExchange.Profiling.Storage;
+using OpenTelemetry.Trace;
+using AspNetCore.Profiler.Mvc.Models;
 
 namespace AspNetCore.Profiler.Mvc
 {
@@ -21,7 +23,18 @@ namespace AspNetCore.Profiler.Mvc
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllersWithViews();
+            services.AddControllersWithViews(options =>
+            {
+                options.Filters.Add<HttpRequestLogFilter>();
+            });
+
+            #region HttpClients
+            services.AddHttpClient(Consts.HttpClientDemo, client =>
+            {
+                client.BaseAddress = new Uri("https://localhost:5001");
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+            });
+            #endregion
 
             #region Entity framework
             services.AddDbContext<DemoDbContext>(options =>
@@ -86,11 +99,19 @@ namespace AspNetCore.Profiler.Mvc
                 // (Optional)To control authorization, you can use the Func<HttpRequest, bool> options:
                 // (default is everyone can access profilers)
                 options.ResultsAuthorize = request => request.IsAuthorizedToMiniProfiler();
-                options.ResultsListAuthorize = request => request.IsAuthorizedToMiniProfiler(); 
+                options.ResultsListAuthorize = request => request.IsAuthorizedToMiniProfiler();
 
                 #endregion
             })
             .AddEntityFramework(); // Enable Entity Framework tracking
+            #endregion
+
+            #region OpenTelemetry
+            services.AddOpenTelemetry().WithTracing(
+            builder => builder
+                .AddAspNetCoreInstrumentation()
+                .AddAspNetCoreInstrumentation()
+                .AddConsoleExporter());
             #endregion
         }
 

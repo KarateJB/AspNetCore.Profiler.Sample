@@ -1,12 +1,7 @@
-using System.Collections.Generic;
-using System.Linq;
 using AspNetCore.Profiler.Dal;
 using AspNetCore.Profiler.Mvc.Utils;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using NLog.Web;
 
 namespace AspNetCore.Profiler.Mvc
 {
@@ -23,11 +18,13 @@ namespace AspNetCore.Profiler.Mvc
                 // Create MiniProfiler's profiling table
                 var configuration = services.GetRequiredService<IConfiguration>();
                 var connectionString = configuration.GetConnectionString("DefaultConnection");
+                //var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
                 var dbContext = services.GetRequiredService<DemoDbContext>() as DemoDbContext;
 
-                var tableQueryRslt = dbContext.Payments.FromSqlRaw(
-                    "SELECT NEWID() as Id FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND  TABLE_NAME = 'MiniProfilers'");
+                var tableQueryRslt = dbContext.Tables.FromSqlRaw(
+                    "SELECT TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME, TABLE_TYPE FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND  TABLE_NAME = 'MiniProfilers'");
 
+                var tableQueryRsltList = tableQueryRslt.ToList();
                 var isExist = tableQueryRslt.Count() > 0;
                 if (!isExist)
                 {
@@ -49,7 +46,35 @@ namespace AspNetCore.Profiler.Mvc
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>();
-                });
+                    webBuilder.ConfigureKestrel(serverOptions =>
+                    {
+                        // Set properties and call methods on options
+                    })
+                    .UseStartup<Startup>();
+                })
+            .ConfigureLogging(logging =>
+            {
+                logging.ClearProviders();
+                logging.SetMinimumLevel(LogLevel.Trace);
+            })
+            .ConfigureAppConfiguration((context, config) =>
+            {
+                var env = context.HostingEnvironment;
+
+                config.Sources.Clear();
+                config
+                .AddJsonFile($"appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+                .AddEnvironmentVariables();
+                //.AddCommandLine(args);
+
+                if (env.IsDevelopment())
+                {
+                    config.AddUserSecrets<Program>();
+                }
+
+                config.Build();
+            })
+               .UseNLog();
     }
 }
