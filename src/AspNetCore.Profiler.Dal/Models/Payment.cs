@@ -12,6 +12,7 @@ namespace AspNetCore.Profiler.Dal.Models
     {
         [Key]
         [Column(Order = 1)]
+        [Display(Name = "ID")]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
 

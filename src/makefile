@@ -10,7 +10,7 @@ clean:
 restore:
 		dotnet restore ./AspNetCore.Profiler.sln
 
-run: #clean build
+run: clean build
 		dotnet run --project ./AspNetCore.Profiler.Mvc/AspNetCore.Profiler.Mvc.csproj --launch-profile "Dev" --property:Configuration=Debug
 
 publish:
