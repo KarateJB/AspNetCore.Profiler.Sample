@@ -11,7 +11,7 @@ public class PaymentController : Controller
 
     public PaymentController(DemoDbContext dbContext)
     {
-        this.dbContext = dbContext;
+        this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
 
     // GET: Payments

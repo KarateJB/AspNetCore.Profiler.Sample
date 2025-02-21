@@ -21,19 +21,22 @@ namespace AspNetCore.Profiler.Mvc
                 //var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
                 var dbContext = services.GetRequiredService<DemoDbContext>() as DemoDbContext;
 
-                var tableQueryRslt = dbContext.Tables.FromSqlRaw(
-                    "SELECT TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME, TABLE_TYPE FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND  TABLE_NAME = 'MiniProfilers'");
-
-                var tableQueryRsltList = tableQueryRslt.ToList();
-                var isExist = tableQueryRslt.Count() > 0;
-                if (!isExist)
+                if (configuration.GetValue<bool>("MiniProfiler:EnableSaveDb"))
                 {
-                    using (var sqlserverStorage = new CustomSqlServerStorage(connectionString))
+                    var tableQueryRslt = dbContext.Tables.FromSqlRaw(
+                        "SELECT TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME, TABLE_TYPE FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND  TABLE_NAME = 'MiniProfilers'");
+
+                    var tableQueryRsltList = tableQueryRslt.ToList();
+                    var isExist = tableQueryRslt.Count() > 0;
+                    if (!isExist)
                     {
-                        IEnumerable<string> createSqls = sqlserverStorage.CreateSqls;
-                        foreach (string sql in createSqls)
+                        using (var sqlserverStorage = new CustomSqlServerStorage(connectionString))
                         {
-                            _ = dbContext.Database.ExecuteSqlRaw(sql);
+                            IEnumerable<string> createSqls = sqlserverStorage.CreateSqls;
+                            foreach (string sql in createSqls)
+                            {
+                                _ = dbContext.Database.ExecuteSqlRaw(sql);
+                            }
                         }
                     }
                 }
@@ -65,6 +68,7 @@ namespace AspNetCore.Profiler.Mvc
                 config
                 .AddJsonFile($"appsettings.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+                // .AddJsonFile("ocelot.json", optional: false, reloadOnChange: true)
                 .AddEnvironmentVariables();
                 //.AddCommandLine(args);
 

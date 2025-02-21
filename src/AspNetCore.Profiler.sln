@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26124.0
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35027.167
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCore.Profiler.Mvc", "AspNetCore.Profiler.Mvc\AspNetCore.Profiler.Mvc.csproj", "{44A94F40-7C0D-4CA2-8DF2-FAAA6277D28B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCore.Profiler.Mvc", "AspNetCore.Profiler.Mvc\AspNetCore.Profiler.Mvc.csproj", "{44A94F40-7C0D-4CA2-8DF2-FAAA6277D28B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCore.Profiler.Dal", "AspNetCore.Profiler.Dal\AspNetCore.Profiler.Dal.csproj", "{06ABF484-F82B-4F5E-9B4B-F1CE2CDA2DC8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCore.Profiler.Dal", "AspNetCore.Profiler.Dal\AspNetCore.Profiler.Dal.csproj", "{06ABF484-F82B-4F5E-9B4B-F1CE2CDA2DC8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCore.Profiler.Gateway", "AspNetCore.Profiler.Gateway\AspNetCore.Profiler.Gateway.csproj", "{DC2B2EEB-D32D-4584-87F3-2A88834F5D5E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,9 +17,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{44A94F40-7C0D-4CA2-8DF2-FAAA6277D28B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -44,5 +43,20 @@ Global
 		{06ABF484-F82B-4F5E-9B4B-F1CE2CDA2DC8}.Release|x64.Build.0 = Release|Any CPU
 		{06ABF484-F82B-4F5E-9B4B-F1CE2CDA2DC8}.Release|x86.ActiveCfg = Release|Any CPU
 		{06ABF484-F82B-4F5E-9B4B-F1CE2CDA2DC8}.Release|x86.Build.0 = Release|Any CPU
+		{DC2B2EEB-D32D-4584-87F3-2A88834F5D5E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC2B2EEB-D32D-4584-87F3-2A88834F5D5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC2B2EEB-D32D-4584-87F3-2A88834F5D5E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{DC2B2EEB-D32D-4584-87F3-2A88834F5D5E}.Debug|x64.Build.0 = Debug|Any CPU
+		{DC2B2EEB-D32D-4584-87F3-2A88834F5D5E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DC2B2EEB-D32D-4584-87F3-2A88834F5D5E}.Debug|x86.Build.0 = Debug|Any CPU
+		{DC2B2EEB-D32D-4584-87F3-2A88834F5D5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC2B2EEB-D32D-4584-87F3-2A88834F5D5E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC2B2EEB-D32D-4584-87F3-2A88834F5D5E}.Release|x64.ActiveCfg = Release|Any CPU
+		{DC2B2EEB-D32D-4584-87F3-2A88834F5D5E}.Release|x64.Build.0 = Release|Any CPU
+		{DC2B2EEB-D32D-4584-87F3-2A88834F5D5E}.Release|x86.ActiveCfg = Release|Any CPU
+		{DC2B2EEB-D32D-4584-87F3-2A88834F5D5E}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal
