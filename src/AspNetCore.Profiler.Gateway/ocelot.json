@@ -1,9 +1,9 @@
 {
   "Routes": [
     {
-      "UpstreamPathTemplate": "/demo/payment?{everything}",
+      "UpstreamPathTemplate": "/Payment/{everything}",
       "UpstreamHttpMethod": ["Get"],
-      "DownstreamPathTemplate": "/api/Payment/{everything}",
+      "DownstreamPathTemplate": "/api/PaymentApi/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -17,7 +17,12 @@
       "UpstreamHeaderTransform": {
         "Referrer": "{RemoteIpAddress}",
         "X-Forwarded-For": "{RemoteIpAddress}"
-      }
+      },
+        "FileCacheOptions": {
+          "TtlSeconds": 86400,
+          "Region": "HelloWorld",
+          "EnableContentHashing": false
+        }
     }
   ],
   "GlobalConfiguration": {

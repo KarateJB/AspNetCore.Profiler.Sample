@@ -1,4 +1,7 @@
+using AspNetCore.Profiler.Gateway.Models;
+using AspNetCore.Profiler.Gateway.Services;
 using NLog.Web;
+using Ocelot.Cache;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 using Ocelot.Provider.Polly;
@@ -7,6 +10,11 @@ using OpenTelemetry.Trace;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Logging.ClearProviders();
+
+// Add services to the container
+builder.Services.AddSingleton<IOcelotCache<CachedResponse>, RedisCacheStore>();
+
+// Add Logging
 builder.Host.UseNLog();
 builder.Services.AddLogging(b =>
 {
@@ -16,8 +24,10 @@ builder.Services.AddLogging(b =>
         .AddDebug();
 });
 
+// Add configuration
+builder.Services.Configure<AppSettings>(builder.Configuration);
+
 // Add services to the container.
-builder.Services.AddOcelot(builder.Configuration).AddPolly();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -34,7 +44,7 @@ builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange
 builder.Services.AddOcelot(builder.Configuration).AddPolly();
 // FileConfiguration ocelotConfig = builder.Configuration.GetSection("Ocelot").Get<FileConfiguration>();
 // builder.Configuration.AddOcelot(ocelotConfig);
-builder.Services.AddOcelot().AddPolly();
+// builder.Services.AddOcelot().AddPolly();
 
 builder.Services.AddControllers(options =>
 {

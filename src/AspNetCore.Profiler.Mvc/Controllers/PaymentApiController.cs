@@ -47,9 +47,10 @@ public class PaymentApiController : ControllerBase
 #endif
 
         // Call the other API to see the Trace Id and Span Id
-        var httpClient = httpClientFactory.CreateClient(Consts.HttpClientDemo);
-        var payment = await httpClient.GetFromJsonAsync<Payment>($"api/PaymentApi/{id}");
-        return Ok(payment);
+        // var httpClient = httpClientFactory.CreateClient(Consts.HttpClientDemo);
+        // var payment = await httpClient.GetFromJsonAsync<Payment>($"api/PaymentApi/{id}");
+        // return Ok(payment);
+        return Ok("Tested okay!");
     }
 
 }
