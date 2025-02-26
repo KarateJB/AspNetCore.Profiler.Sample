@@ -65,12 +65,11 @@ namespace AspNetCore.Profiler.Mvc
                 var env = context.HostingEnvironment;
 
                 config.Sources.Clear();
-                config
-                .AddJsonFile($"appsettings.json", optional: false, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-                // .AddJsonFile("ocelot.json", optional: false, reloadOnChange: true)
-                .AddEnvironmentVariables();
-                //.AddCommandLine(args);
+                config.AddJsonFile($"appsettings.json", optional: false, reloadOnChange: true)
+                      .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+                      // .AddJsonFile("ocelot.json", optional: false, reloadOnChange: true)
+                      .AddEnvironmentVariables()
+                      .AddCommandLine(args);
 
                 if (env.IsDevelopment())
                 {

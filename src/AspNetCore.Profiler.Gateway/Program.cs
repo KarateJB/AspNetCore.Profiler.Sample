@@ -40,6 +40,8 @@ builder.Services.AddOpenTelemetry().WithTracing(
 
 // Add Ocelot configuration file
 builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
+builder.Configuration.AddEnvironmentVariables();
+
 // builder.Services.AddOcelot(builder.Configuration.GetSection("Ocelot")).AddPolly();
 builder.Services.AddOcelot(builder.Configuration).AddPolly();
 // FileConfiguration ocelotConfig = builder.Configuration.GetSection("Ocelot").Get<FileConfiguration>();

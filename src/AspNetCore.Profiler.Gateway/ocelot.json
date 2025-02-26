@@ -18,11 +18,11 @@
         "Referrer": "{RemoteIpAddress}",
         "X-Forwarded-For": "{RemoteIpAddress}"
       },
-        "FileCacheOptions": {
-          "TtlSeconds": 86400,
-          "Region": "HelloWorld",
-          "EnableContentHashing": false
-        }
+      "FileCacheOptions": {
+        "TtlSeconds": 3600,
+        "Region": "HelloWorld",
+        "EnableContentHashing": false
+      }
     }
   ],
   "GlobalConfiguration": {
