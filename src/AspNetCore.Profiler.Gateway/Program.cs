@@ -1,5 +1,6 @@
 using AspNetCore.Profiler.Gateway.Models;
 using AspNetCore.Profiler.Gateway.Services;
+using Microsoft.FeatureManagement;
 using NLog.Web;
 using Ocelot.Cache;
 using Ocelot.DependencyInjection;
@@ -11,8 +12,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Logging.ClearProviders();
 
+// Add feature management
+builder.Services.AddFeatureManagement();
+
 // Add services to the container
-builder.Services.AddSingleton<IOcelotCache<CachedResponse>, RedisCacheStore>();
+var featureManager = builder.Services.BuildServiceProvider().GetRequiredService<IFeatureManager>();
+if (await featureManager.IsEnabledAsync(nameof(FeatureFlags.OcelotCaching)))
+{
+    builder.Services.AddSingleton<IOcelotCache<CachedResponse>, RedisCacheStore>();
+}
 
 // Add Logging
 builder.Host.UseNLog();
