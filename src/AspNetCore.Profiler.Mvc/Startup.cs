@@ -5,6 +5,7 @@ using StackExchange.Profiling;
 using StackExchange.Profiling.Storage;
 using OpenTelemetry.Trace;
 using AspNetCore.Profiler.Mvc.Models;
+using Microsoft.FeatureManagement;
 
 namespace AspNetCore.Profiler.Mvc
 {
@@ -23,10 +24,8 @@ namespace AspNetCore.Profiler.Mvc
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // HACK: remove Ocelot
-            #region Ocelot
-            // builder.Services.AddOcelot(builder.Configuration.GetSection("Ocelot")).AddPolly();
-            // services.AddOcelot(Configuration).AddPolly();
+            #region Feature Management
+            services.AddFeatureManagement();
             #endregion
 
             services.AddControllersWithViews(options =>

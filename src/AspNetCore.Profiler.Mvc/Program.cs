@@ -2,12 +2,13 @@ using AspNetCore.Profiler.Dal;
 using AspNetCore.Profiler.Mvc.Utils;
 using Microsoft.EntityFrameworkCore;
 using NLog.Web;
+using Microsoft.FeatureManagement;
 
 namespace AspNetCore.Profiler.Mvc
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var host = CreateHostBuilder(args).Build();
 
@@ -18,10 +19,10 @@ namespace AspNetCore.Profiler.Mvc
                 // Create MiniProfiler's profiling table
                 var configuration = services.GetRequiredService<IConfiguration>();
                 var connectionString = configuration.GetConnectionString("DefaultConnection");
-                //var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
                 var dbContext = services.GetRequiredService<DemoDbContext>() as DemoDbContext;
 
-                if (configuration.GetValue<bool>("MiniProfiler:EnableSaveDb"))
+                var featureManager = services.GetRequiredService<IFeatureManager>();
+                if (await featureManager.IsEnabledAsync("EnableMiniProfilerDb"))
                 {
                     var tableQueryRslt = dbContext.Tables.FromSqlRaw(
                         "SELECT TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME, TABLE_TYPE FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND  TABLE_NAME = 'MiniProfilers'");

@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Profiling;
 using StackExchange.Profiling.Storage;
+using Microsoft.FeatureManagement;
 
 namespace AspNetCore.Profiler.Mvc.Utils
 {
@@ -9,12 +10,13 @@ namespace AspNetCore.Profiler.Mvc.Utils
     {
         public static IServiceCollection AddCustomMiniProfiler(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddMiniProfiler(options =>
+            services.AddMiniProfiler(async options =>
             {
                 options.RouteBasePath = "/profiler";
 
                 #region Storage
-                if (configuration.GetValue<bool>("MiniProfiler:EnableSaveDb"))
+                var featureManager = services.BuildServiceProvider().GetRequiredService<IFeatureManager>();
+                if (await featureManager.IsEnabledAsync("EnableMiniProfilerDb"))
                 {
                     options.Storage = new SqlServerStorage(configuration.GetConnectionString("DefaultConnection"));
                 }
