@@ -73,6 +73,12 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthorization();
-await app.UseOcelot();
+
+// await app.UseOcelot();
+app.MapWhen((ctx) => ctx.Request.Path.StartsWithSegments("/payment"), (app) =>
+{
+    app.UseOcelot().Wait();
+});
+
 app.MapControllers();
 app.Run();

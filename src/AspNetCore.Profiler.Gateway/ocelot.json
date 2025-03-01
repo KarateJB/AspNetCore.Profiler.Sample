@@ -2,7 +2,7 @@
   "Routes": [
     {
       "UpstreamPathTemplate": "/Payment/{everything}",
-      "UpstreamHttpMethod": ["Get"],
+      "UpstreamHttpMethod": ["Get", "Post"],
       "DownstreamPathTemplate": "/api/PaymentApi/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [

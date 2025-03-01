@@ -75,16 +75,7 @@ namespace AspNetCore.Profiler.Mvc
             }
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-
-            // HACK: remove Ocelot
-            // await app.UseOcelot();
-            // app.MapWhen((ctx) => ctx.Request.Path.StartsWithSegments("/demo"), (app) =>
-            // {
-            //     app.UseOcelot().Wait();
-            // });
-
             app.UseRouting();
-
             app.UseAuthorization();
 
             // Miniprofiler
