@@ -2,12 +2,13 @@ using AspNetCore.Profiler.Dal;
 using AspNetCore.Profiler.Mvc.Utils;
 using Microsoft.EntityFrameworkCore;
 using NLog.Web;
+using Microsoft.FeatureManagement;
 
 namespace AspNetCore.Profiler.Mvc
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var host = CreateHostBuilder(args).Build();
 
@@ -18,22 +19,25 @@ namespace AspNetCore.Profiler.Mvc
                 // Create MiniProfiler's profiling table
                 var configuration = services.GetRequiredService<IConfiguration>();
                 var connectionString = configuration.GetConnectionString("DefaultConnection");
-                //var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
                 var dbContext = services.GetRequiredService<DemoDbContext>() as DemoDbContext;
 
-                var tableQueryRslt = dbContext.Tables.FromSqlRaw(
-                    "SELECT TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME, TABLE_TYPE FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND  TABLE_NAME = 'MiniProfilers'");
-
-                var tableQueryRsltList = tableQueryRslt.ToList();
-                var isExist = tableQueryRslt.Count() > 0;
-                if (!isExist)
+                var featureManager = services.GetRequiredService<IFeatureManager>();
+                if (await featureManager.IsEnabledAsync("EnableMiniProfilerDb"))
                 {
-                    using (var sqlserverStorage = new CustomSqlServerStorage(connectionString))
+                    var tableQueryRslt = dbContext.Tables.FromSqlRaw(
+                        "SELECT TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME, TABLE_TYPE FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND  TABLE_NAME = 'MiniProfilers'");
+
+                    var tableQueryRsltList = tableQueryRslt.ToList();
+                    var isExist = tableQueryRslt.Count() > 0;
+                    if (!isExist)
                     {
-                        IEnumerable<string> createSqls = sqlserverStorage.CreateSqls;
-                        foreach (string sql in createSqls)
+                        using (var sqlserverStorage = new CustomSqlServerStorage(connectionString))
                         {
-                            _ = dbContext.Database.ExecuteSqlRaw(sql);
+                            IEnumerable<string> createSqls = sqlserverStorage.CreateSqls;
+                            foreach (string sql in createSqls)
+                            {
+                                _ = dbContext.Database.ExecuteSqlRaw(sql);
+                            }
                         }
                     }
                 }
@@ -62,11 +66,11 @@ namespace AspNetCore.Profiler.Mvc
                 var env = context.HostingEnvironment;
 
                 config.Sources.Clear();
-                config
-                .AddJsonFile($"appsettings.json", optional: false, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-                .AddEnvironmentVariables();
-                //.AddCommandLine(args);
+                config.AddJsonFile($"appsettings.json", optional: false, reloadOnChange: true)
+                      .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+                      // .AddJsonFile("ocelot.json", optional: false, reloadOnChange: true)
+                      .AddEnvironmentVariables()
+                      .AddCommandLine(args);
 
                 if (env.IsDevelopment())
                 {

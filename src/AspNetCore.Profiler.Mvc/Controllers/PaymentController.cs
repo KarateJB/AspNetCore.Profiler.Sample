@@ -11,7 +11,7 @@ public class PaymentController : Controller
 
     public PaymentController(DemoDbContext dbContext)
     {
-        this.dbContext = dbContext;
+        this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
 
     // GET: Payments
@@ -49,7 +49,7 @@ public class PaymentController : Controller
     // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Id,Item,Amount")] Payment payment)
+    public async Task<IActionResult> Create([Bind("Item,Amount")] Payment payment)
     {
         if (ModelState.IsValid)
         {
@@ -86,8 +86,6 @@ public class PaymentController : Controller
     }
 
     // POST: Payments/Edit/5
-    // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-    // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(Guid id, [Bind("Id,Item,Amount,CreateOn")] Payment payment)
@@ -150,8 +148,8 @@ public class PaymentController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    private bool PaymentExists(Guid id)
+    private bool PaymentExists(Guid? id)
     {
-        return dbContext.Payments.Any(e => e.Id == id);
+        return id.HasValue ? dbContext.Payments.Any(e => e.Id == id) : false;
     }
 }
