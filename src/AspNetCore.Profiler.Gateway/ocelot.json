@@ -12,7 +12,7 @@
         }
       ],
       "QoSOptions": {
-        "TimeoutValue": 30000
+        "TimeoutValue": 5000
       },
       "UpstreamHeaderTransform": {
         "Referrer": "{RemoteIpAddress}",

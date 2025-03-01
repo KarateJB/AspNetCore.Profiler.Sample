@@ -3,6 +3,7 @@ using AspNetCore.Profiler.Dal.Models;
 using AspNetCore.Profiler.Mvc.Models;
 using Microsoft.EntityFrameworkCore;
 using OpenTelemetry.Trace;
+using StackExchange.Profiling;
 
 namespace AspNetCore.Profiler.Mvc.Controllers;
 
@@ -53,4 +54,75 @@ public class PaymentApiController : ControllerBase
         return Ok("Tested okay!");
     }
 
+    [HttpPost]
+    [Route("Create")]
+    public async Task<IActionResult> Create([FromBody] Payment payment)
+    {
+        if (ModelState.IsValid)
+        {
+            using CustomTiming timing = MiniProfiler.Current.CustomTiming("MyLongRun", "Test command", executeType: "Test", includeStackTrace: true);
+            payment.Id = Guid.NewGuid();
+            payment.CreateOn = DateTimeOffset.UtcNow;
+            dbcontext.Add(payment);
+            await dbcontext.SaveChangesAsync();
+
+            timing.CommandString = $"Inserting {payment.Item} with amount {payment.Amount.ToString()}.";
+
+            return Ok(payment);
+        }
+        return BadRequest(ModelState);
+    }
+
+    [HttpPost]
+    [Route("Edit/{id}")]
+    public async Task<IActionResult> Edit(Guid id, [FromBody] Payment payment)
+    {
+        if (id != payment.Id)
+        {
+            return BadRequest("Payment ID mismatch");
+        }
+
+        if (ModelState.IsValid)
+        {
+            try
+            {
+                this.dbcontext.Attach(payment);
+                this.dbcontext.Update(payment);
+                await dbcontext.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!PaymentExists(payment.Id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            return Ok(payment);
+        }
+        return BadRequest(ModelState);
+    }
+
+    [HttpPost]
+    [Route("Delete/{id}")]
+    public async Task<IActionResult> DeleteConfirmed(Guid id)
+    {
+        var payment = await dbcontext.Payments.FindAsync(id);
+        if (payment == null)
+        {
+            return NotFound();
+        }
+
+        dbcontext.Payments.Remove(payment);
+        await dbcontext.SaveChangesAsync();
+        return Ok();
+    }
+
+    private bool PaymentExists(Guid id)
+    {
+        return dbcontext.Payments.Any(e => e.Id == id);
+    }
 }
