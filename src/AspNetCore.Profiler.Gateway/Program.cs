@@ -3,6 +3,7 @@ using AspNetCore.Profiler.Gateway.Services;
 using Microsoft.FeatureManagement;
 using NLog.Web;
 using Ocelot.Cache;
+using Ocelot.Configuration.File;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 using Ocelot.Provider.Polly;
@@ -34,6 +35,7 @@ builder.Services.AddLogging(b =>
 
 // Add configuration
 builder.Services.Configure<AppSettings>(builder.Configuration);
+builder.Configuration.AddEnvironmentVariables();
 
 // Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
@@ -47,14 +49,20 @@ builder.Services.AddOpenTelemetry().WithTracing(
 );
 
 // Add Ocelot configuration file
-builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
-builder.Configuration.AddEnvironmentVariables();
-
-// builder.Services.AddOcelot(builder.Configuration.GetSection("Ocelot")).AddPolly();
-builder.Services.AddOcelot(builder.Configuration).AddPolly();
-// FileConfiguration ocelotConfig = builder.Configuration.GetSection("Ocelot").Get<FileConfiguration>();
-// builder.Configuration.AddOcelot(ocelotConfig);
-// builder.Services.AddOcelot().AddPolly();
+if (await featureManager.IsEnabledAsync(nameof(FeatureFlags.OcelotConfigRender)))
+{
+    // builder.Services.AddOcelot(builder.Configuration.GetSection("Ocelot")).AddPolly();
+    FileConfiguration ocelotConfig = builder.Configuration.GetSection("Ocelot").Get<FileConfiguration>();
+    // TODO: replace env vars
+    // ...
+    builder.Configuration.AddOcelot(ocelotConfig);
+    builder.Services.AddOcelot().AddPolly();
+}
+else
+{
+    builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
+    builder.Services.AddOcelot(builder.Configuration).AddPolly();
+}
 
 builder.Services.AddControllers(options =>
 {
