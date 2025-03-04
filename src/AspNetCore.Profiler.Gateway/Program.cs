@@ -1,5 +1,6 @@
 using AspNetCore.Profiler.Gateway.Models;
 using AspNetCore.Profiler.Gateway.Services;
+using Microsoft.Extensions.Hosting;
 using Microsoft.FeatureManagement;
 using NLog.Web;
 using Ocelot.Cache;
@@ -34,8 +35,15 @@ builder.Services.AddLogging(b =>
 });
 
 // Add configuration
+builder.Host.ConfigureAppConfiguration((hostingContext, config) =>
+        {
+            config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{hostingContext.HostingEnvironment}.json", true, true)
+                .AddEnvironmentVariables(); // Load env variables
+        });
+
 builder.Services.Configure<AppSettings>(builder.Configuration);
-builder.Configuration.AddEnvironmentVariables();
+// builder.Configuration.AddEnvironmentVariables();
 
 // Add services to the container.
 builder.Services.AddEndpointsApiExplorer();

@@ -1,4 +1,4 @@
-﻿{
+{
   "$schema": "http://json.schemastore.org/launchsettings.json",
   "iisSettings": {
     "windowsAuthentication": false,
@@ -17,8 +17,10 @@
       "applicationUrl": "http://localhost:6000;https://localhost:6001",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
+        "demo_site_host": "localhost",
+        "demo_site_port": 5000,
         "Redis:Name": "local",
-        "Redis:ConnectionString": "localhost:6379"
+        "Redis:ConnectionString": "myredis:6379"
       }
     },
     "IIS Express": {
