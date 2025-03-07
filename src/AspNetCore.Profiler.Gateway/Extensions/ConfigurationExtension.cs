@@ -1,6 +1,8 @@
+using System.Collections;
 using System.Reflection;
 using System.Text;
 using Microsoft.Extensions.FileProviders;
+using Scriban;
 
 namespace AspNetCore.Profiler.Gateway.Externsions;
 
@@ -63,9 +65,25 @@ public static class ConfigurationExtension
 
         var configJson = reader.ReadToEnd();
 
-        // TODO: implement this
-        // configJson = RenderEnvVars(environmentVariables, configJson);
+        configJson = RenderEnvVars(environmentVariables, configJson);
 
         return new MemoryStream(Encoding.UTF8.GetBytes(configJson));
+    }
+
+    private static string RenderEnvVars(IDictionary environmentVariables, string configJson)
+    {
+        var template = Template.Parse(configJson);
+        // var scriptObject = new ScriptObject();
+
+        // foreach (DictionaryEntry entry in environmentVariables)
+        // {
+        //     scriptObject.Add(entry.Key.ToString(), entry.Value);
+        // }
+
+        // var context = new TemplateContext();
+        // context.PushGlobal(scriptObject);
+        // return template.Render(context);
+        string renderedJson = template.Render(environmentVariables);
+        return renderedJson;
     }
 }

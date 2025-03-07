@@ -18,5 +18,6 @@
     <PackageReference Include="Ocelot" Version="23.2.2" />
     <PackageReference Include="Ocelot.Provider.Polly" Version="23.2.2" />
     <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="3.0.0" />
+    <PackageReference Include="Scriban" Version="5.12.1" />
   </ItemGroup>
 </Project>

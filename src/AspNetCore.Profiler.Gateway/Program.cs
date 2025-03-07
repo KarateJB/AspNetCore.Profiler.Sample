@@ -1,6 +1,7 @@
 using AspNetCore.Profiler.Gateway.Models;
 using AspNetCore.Profiler.Gateway.Services;
 using Microsoft.Extensions.Hosting;
+using AspNetCore.Profiler.Gateway.Externsions;
 using Microsoft.FeatureManagement;
 using NLog.Web;
 using Ocelot.Cache;
@@ -35,13 +36,13 @@ builder.Services.AddLogging(b =>
 });
 
 // Add configuration
-builder.Host.ConfigureAppConfiguration((hostingContext, config) =>
-        {
-            config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{hostingContext.HostingEnvironment}.json", true, true)
-                .AddEnvironmentVariables(); // Load env variables
-        });
-
+// builder.Host.ConfigureAppConfiguration((hostingContext, config) =>
+//         {
+//             config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+//                 .AddJsonFile($"appsettings.{hostingContext.HostingEnvironment}.json", true, true)
+//                 .AddEnvironmentVariables(); // Load env variables
+//         });
+builder.Host.AddCustomConfiguration(args);
 builder.Services.Configure<AppSettings>(builder.Configuration);
 // builder.Configuration.AddEnvironmentVariables();
 
@@ -61,8 +62,6 @@ if (await featureManager.IsEnabledAsync(nameof(FeatureFlags.OcelotConfigRender))
 {
     // builder.Services.AddOcelot(builder.Configuration.GetSection("Ocelot")).AddPolly();
     FileConfiguration ocelotConfig = builder.Configuration.GetSection("Ocelot").Get<FileConfiguration>();
-    // TODO: replace env vars
-    // ...
     builder.Configuration.AddOcelot(ocelotConfig);
     builder.Services.AddOcelot().AddPolly();
 }
@@ -91,6 +90,7 @@ app.UseRouting();
 app.UseAuthorization();
 
 // await app.UseOcelot();
+Func<HttpContext, bool> enableOcelotWhen = (ctx) => ctx.Request.Path.StartsWithSegments("/payment");
 app.MapWhen((ctx) => ctx.Request.Path.StartsWithSegments("/payment"), (app) =>
 {
     app.UseOcelot().Wait();
