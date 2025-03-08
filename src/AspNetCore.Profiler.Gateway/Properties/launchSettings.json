@@ -9,8 +9,10 @@
       "applicationUrl": "http://localhost:6000;https://localhost:6001",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "api_host": "localhost",
-        "api_port": "5000",
+        "payment_host": "localhost",
+        "payment_port": "5000",
+        "demo_host": "localhost",
+        "demo_port": "5000",
         "Redis:Name": "local",
         "Redis:ConnectionString": "myredis:6379"
       }
