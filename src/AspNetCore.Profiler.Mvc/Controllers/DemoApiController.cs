@@ -17,6 +17,17 @@ public class DemoApiController : ControllerBase
     }
 
     [HttpGet]
+    [Route("[action]")]
+    public async Task<IActionResult> Version([FromRoute] Guid? id, [FromServices] IHttpClientFactory httpClientFactory)
+    {
+        var traceId = Tracer.CurrentSpan.Context.TraceId;
+        var spanId = Tracer.CurrentSpan.Context.SpanId;
+        this.logger.LogDebug($"{HttpContext.Request.Path} - TraceId: {traceId}, SpanId: {spanId}");
+
+        return Ok("1.0.0");
+    }
+
+    [HttpGet]
     [Route("[action]/{id?}")]
     public async Task<IActionResult> TestOpenTelemetry([FromRoute] Guid? id, [FromServices] IHttpClientFactory httpClientFactory)
     {
@@ -31,6 +42,6 @@ public class DemoApiController : ControllerBase
             var payment = await httpClient.GetFromJsonAsync<Payment>($"api/PaymentApi/{id}");
             return Ok(payment);
         }
-        else return Ok("Tested okay!");
+        else return Ok("OpenTelemetry is working!");
     }
 }
