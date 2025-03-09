@@ -2,7 +2,10 @@
   "Routes": [
     {
       "UpstreamPathTemplate": "/Payment/{everything}",
-      "UpstreamHttpMethod": ["Get", "Post"],
+      "UpstreamHttpMethod": [
+        "Get",
+        "Post"
+      ],
       "DownstreamPathTemplate": "/api/PaymentApi/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
@@ -22,6 +25,27 @@
         "TtlSeconds": 3600,
         "Region": "HelloWorld",
         "EnableContentHashing": false
+      }
+    },
+    {
+      "UpstreamPathTemplate": "/Demo/{everything}",
+      "UpstreamHttpMethod": [
+        "Get"
+      ],
+      "DownstreamPathTemplate": "/api/DemoApi/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5000
+        }
+      ],
+      "QoSOptions": {
+        "TimeoutValue": 3000
+      },
+      "UpstreamHeaderTransform": {
+        "Referrer": "{RemoteIpAddress}",
+        "X-Forwarded-For": "{RemoteIpAddress}"
       }
     }
   ],
