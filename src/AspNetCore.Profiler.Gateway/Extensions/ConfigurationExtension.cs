@@ -8,6 +8,18 @@ namespace AspNetCore.Profiler.Gateway.Externsions;
 
 public static class ConfigurationExtension
 {
+    public static IHostBuilder AddBasicConfiguration(this IHostBuilder builder, string[] args)
+    {
+        builder.ConfigureAppConfiguration((context, config) =>
+                {
+                    var env = context.HostingEnvironment;
+                    config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                        .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true, true)
+                        .AddEnvironmentVariables(); // Load env variables
+                });
+        return builder;
+    }
+
     public static IHostBuilder AddCustomConfiguration(this IHostBuilder builder, string[] args)
     {
         builder.ConfigureAppConfiguration((context, config) =>

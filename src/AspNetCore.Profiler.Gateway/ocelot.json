@@ -11,7 +11,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 5000
+          "Port": "5000"
         }
       ],
       "QoSOptions": {
@@ -23,21 +23,21 @@
       },
       "FileCacheOptions": {
         "TtlSeconds": 3600,
-        "Region": "HelloWorld",
+        "Region": "payment",
         "EnableContentHashing": false
       }
     },
     {
-      "UpstreamPathTemplate": "/Demo/{everything}",
+      "UpstreamPathTemplate": "/Demo/TestOpenTelemetry/{everything}",
       "UpstreamHttpMethod": [
         "Get"
       ],
-      "DownstreamPathTemplate": "/api/DemoApi/{everything}",
+      "DownstreamPathTemplate": "/api/DemoApi/TestOpenTelemetry/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 5000
+          "Port": "5000"
         }
       ],
       "QoSOptions": {
@@ -46,7 +46,58 @@
       "UpstreamHeaderTransform": {
         "Referrer": "{RemoteIpAddress}",
         "X-Forwarded-For": "{RemoteIpAddress}"
+      },
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "ApiGateway"
+      },
+      "RouteClaimsRequirement": {
+        "Role": "Demo"
       }
+    },
+    {
+      "Key": "Help",
+      "UpstreamPathTemplate": "/Demo/Help/{item}",
+      "UpstreamHttpMethod": [
+        "Get"
+      ],
+      "DownstreamPathTemplate": "/api/DemoApi/Help/{item}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "5000"
+        }
+      ],
+      "HttpHandlerOptions": {
+        "AllowAutoRedirect": true
+      }
+    },
+    {
+      "Key": "Echo",
+      "UpstreamPathTemplate": "/Demo/Echo/{msg}",
+      "UpstreamHttpMethod": [
+        "Get"
+      ],
+      "DownstreamPathTemplate": "/api/DemoApi/Echo/{msg}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "5000"
+        }
+      ],
+      "HttpHandlerOptions": {
+        "AllowAutoRedirect": true
+      }
+    }
+  ],
+  "Aggregates": [
+    {
+      "UpstreamPathTemplate": "/Demo/Aggregate?help={item}&echo={msg}",
+      "RouteKeys": [
+        "Help",
+        "Echo"
+      ]
     }
   ],
   "GlobalConfiguration": {

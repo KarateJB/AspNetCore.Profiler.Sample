@@ -10,6 +10,9 @@ using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 using Ocelot.Provider.Polly;
 using OpenTelemetry.Trace;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,15 +39,10 @@ builder.Services.AddLogging(b =>
 });
 
 // Add configuration
-// builder.Host.ConfigureAppConfiguration((hostingContext, config) =>
-//         {
-//             config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-//                 .AddJsonFile($"appsettings.{hostingContext.HostingEnvironment}.json", true, true)
-//                 .AddEnvironmentVariables(); // Load env variables
-//         });
-builder.Host.AddCustomConfiguration(args);
+// builder.Host.AddBasicConfiguration(args); // Basic configuration
+builder.Host.AddCustomConfiguration(args); // Loading and rendering configuration with environment variables
 builder.Services.Configure<AppSettings>(builder.Configuration);
-// builder.Configuration.AddEnvironmentVariables();
+builder.Services.Configure<JwtSetting>(builder.Configuration.GetSection("Jwt"));
 
 // Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
@@ -57,10 +55,34 @@ builder.Services.AddOpenTelemetry().WithTracing(
         .AddConsoleExporter()
 );
 
-// Add Ocelot configuration file
-if (await featureManager.IsEnabledAsync(nameof(FeatureFlags.OcelotConfigRender)))
+// Add JWT Authentication
+const string AuthenticationProviderKey = "ApiGateway";
+var jwtSetting = builder.Configuration.GetSection("Jwt").Get<JwtSetting>();
+var key = Encoding.ASCII.GetBytes(jwtSetting.SecretKey);
+builder.Services.AddAuthentication(options =>
 {
-    // builder.Services.AddOcelot(builder.Configuration.GetSection("Ocelot")).AddPolly();
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(AuthenticationProviderKey, options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtSetting.Issuer,
+        ValidAudience = jwtSetting.Audience,
+        IssuerSigningKey = new SymmetricSecurityKey(key)
+    };
+});
+
+// Add Ocelot configuration file
+if (await featureManager.IsEnabledAsync(nameof(FeatureFlags.TemplateConfig)))
+{
     FileConfiguration ocelotConfig = builder.Configuration.GetSection("Ocelot").Get<FileConfiguration>();
     builder.Configuration.AddOcelot(ocelotConfig);
     builder.Services.AddOcelot().AddPolly();
@@ -87,11 +109,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseRouting();
+app.UseAuthentication();
 app.UseAuthorization();
 
 // await app.UseOcelot();
-Func<HttpContext, bool> enableOcelotWhen = (ctx) => ctx.Request.Path.StartsWithSegments("/payment");
-app.MapWhen((ctx) => ctx.Request.Path.StartsWithSegments("/payment"), (app) =>
+Func<HttpContext, bool> enableOcelotWhen = (ctx) => 
+    ctx.Request.Path.StartsWithSegments("/payment") || ctx.Request.Path.StartsWithSegments("/demo");
+app.MapWhen(enableOcelotWhen, (app) =>
 {
     app.UseOcelot().Wait();
 });

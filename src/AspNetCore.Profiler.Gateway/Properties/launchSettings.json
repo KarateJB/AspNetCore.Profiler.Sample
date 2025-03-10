@@ -9,6 +9,7 @@
       "applicationUrl": "http://localhost:6000;https://localhost:6001",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
+        "secret_key": "44939ec646c64ae984fa2b9d11053e2c6a52bda0a1244e5b8f9f429f54713157",
         "payment_host": "localhost",
         "payment_port": "5000",
         "demo_host": "localhost",

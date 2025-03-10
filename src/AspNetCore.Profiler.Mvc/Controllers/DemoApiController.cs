@@ -1,7 +1,5 @@
 using AspNetCore.Profiler.Dal.Models;
 using AspNetCore.Profiler.Mvc.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using OpenTelemetry.Trace;
 
 namespace AspNetCore.Profiler.Mvc.Controllers;
@@ -17,14 +15,22 @@ public class DemoApiController : ControllerBase
     }
 
     [HttpGet]
-    [Route("[action]")]
-    public async Task<IActionResult> Version([FromRoute] Guid? id, [FromServices] IHttpClientFactory httpClientFactory)
+    [Route("[action]/{item?}")]
+    public async Task<IActionResult> Help([FromRoute] string item)
     {
-        var traceId = Tracer.CurrentSpan.Context.TraceId;
-        var spanId = Tracer.CurrentSpan.Context.SpanId;
-        this.logger.LogDebug($"{HttpContext.Request.Path} - TraceId: {traceId}, SpanId: {spanId}");
+        item ??= string.Empty;
+        return item.ToLower() switch
+        {
+            "version" => Ok(new { version = "1.0.0" }),
+            _ => Ok(new { description = "This is a demo API" })
+        };
+    }
 
-        return Ok("1.0.0");
+    [HttpGet]
+    [Route("[action]/{msg?}")]
+    public async Task<IActionResult> Echo([FromRoute] string msg)
+    {
+        return Ok(new { echo = msg });
     }
 
     [HttpGet]
