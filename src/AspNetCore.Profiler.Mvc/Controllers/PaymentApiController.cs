@@ -103,23 +103,6 @@ public class PaymentApiController : ControllerBase
         return Ok();
     }
 
-    [HttpGet]
-    [Route("[action]/{id}")]
-    public async Task<IActionResult> TestOpenTelemetry([FromRoute] Guid id, [FromServices] IHttpClientFactory httpClientFactory)
-    {
-#if DEBUG
-        var traceId = Tracer.CurrentSpan.Context.TraceId;
-        var spanId = Tracer.CurrentSpan.Context.SpanId;
-        this.logger.LogDebug($"{HttpContext.Request.Path} - TraceId: {traceId}, SpanId: {spanId}");
-#endif
-
-        // Call the other API to see the Trace Id and Span Id
-        // var httpClient = httpClientFactory.CreateClient(Consts.HttpClientDemo);
-        // var payment = await httpClient.GetFromJsonAsync<Payment>($"api/PaymentApi/{id}");
-        // return Ok(payment);
-        return Ok("Tested okay!");
-    }
-
     private bool PaymentExists(Guid? id)
     {
         return id.HasValue ? dbContext.Payments.Any(e => e.Id == id) : false;
