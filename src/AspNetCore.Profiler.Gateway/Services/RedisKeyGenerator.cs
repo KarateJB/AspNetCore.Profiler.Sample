@@ -14,8 +14,9 @@ public class RedisKeyGenerator : ICacheKeyGenerator
     {
         #region Generate custom Redis Key
 
-        // Use the regex, but better if client side can put the "Redis Key" in the request header.
+        // 1. Try to generate Redis key by URL parameter.
         // StringBuilder customRedisKey = await this.TryGenRedisKeyByUrlParameter(downstreamRequest);
+        // 2. Try to generate Redis key by HTTP header "X-Redis-Key".
         StringBuilder customRedisKey = await this.TryGenRedisKeyByHttpHeader(downstreamRequest);
 
         if (customRedisKey.Length > 0)
