@@ -8,13 +8,16 @@ namespace AspNetCore.Profiler.Gateway.Services;
 public class RedisKeyGenerator : ICacheKeyGenerator
 {
     private const char Delimiter = '-';
+    private const string RedisKeyHeaderName = "X-Redis-Key";
 
     public async ValueTask<string> GenerateRequestCacheKey(DownstreamRequest downstreamRequest, DownstreamRoute downstreamRoute)
     {
-        #region Custom implementation
+        #region Generate custom Redis Key
 
         // Use the regex, but better if client side can put the "Redis Key" in the request header.
-        StringBuilder customRedisKey = await this.TryGenRedisKeyIfMatched(downstreamRequest);
+        // StringBuilder customRedisKey = await this.TryGenRedisKeyByUrlParameter(downstreamRequest);
+        StringBuilder customRedisKey = await this.TryGenRedisKeyByHttpHeader(downstreamRequest);
+
         if (customRedisKey.Length > 0)
         {
             string cacheKey = customRedisKey.ToString();
@@ -57,22 +60,56 @@ public class RedisKeyGenerator : ICacheKeyGenerator
         #endregion
     }
 
-    private static Task<string> ReadContentAsync(DownstreamRequest downstream) => downstream.HasContent
-        ? downstream?.Request?.Content?.ReadAsStringAsync() ?? Task.FromResult(string.Empty)
+    private static Task<string> ReadContentAsync(DownstreamRequest downstream) => downstream.HasContent && downstream.Request?.Content != null
+        ? downstream.Request.Content.ReadAsStringAsync() ?? Task.FromResult(string.Empty)
         : Task.FromResult(string.Empty);
 
-    private Task<StringBuilder> TryGenRedisKeyIfMatched(DownstreamRequest downStreamRequest)
+    private Task<StringBuilder> TryGenRedisKeyByUrlParameter(DownstreamRequest downStreamRequest)
     {
+        StringBuilder sbRedisKey = new();
         string requestUrl = downStreamRequest.OriginalString;
-        string pattern = @"^https?:\/\/[^\/]+\/Demo\?xxx=([^&]*)&yyy=(.*)$";
-        Regex regex = new Regex(pattern, RegexOptions.IgnoreCase);
 
-        Match match = regex.Match(requestUrl);
-        if (match.Success)
+        // Dictionary of URL patterns
+        Dictionary<string, string> patterns = new()
         {
-            // TODO: Generate the custom Redis Key
+            { "PaymentGet", @"^https?:\/\/[^\/]+\/Payment\/([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$" }
+        };
+
+        foreach (var kvp in patterns)
+        {
+            Regex regex = new(kvp.Value, RegexOptions.IgnoreCase);
+            Match match = regex.Match(requestUrl);
+
+            if (match.Success)
+            {
+                switch (kvp.Key)
+                {
+                    case "PaymentGet":
+                        string guid = match.Groups[1].Value;
+                        sbRedisKey.Append(kvp.Key).Append(":").Append(guid);
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
 
-        return Task.FromResult(new StringBuilder());
+        return Task.FromResult(sbRedisKey);
+    }
+
+    private Task<StringBuilder> TryGenRedisKeyByHttpHeader(DownstreamRequest downstreamRequest)
+    {
+        StringBuilder sbRedisKey = new();
+
+        var httpHeaderValues = downstreamRequest.Headers.FirstOrDefault(x => x.Key.Equals(RedisKeyHeaderName));
+        if (httpHeaderValues.Value != null && httpHeaderValues.Value.Any())
+        {
+            string headerValue = httpHeaderValues.Value.FirstOrDefault();
+            if (!string.IsNullOrEmpty(headerValue))
+            {
+                sbRedisKey.Append(headerValue);
+            }
+        }
+        return Task.FromResult(sbRedisKey);
     }
 }
