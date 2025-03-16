@@ -73,7 +73,7 @@ public class RedisKeyGenerator : ICacheKeyGenerator
         // Dictionary of URL patterns
         Dictionary<string, string> patterns = new()
         {
-            { "PaymentGet", @"^https?:\/\/[^\/]+\/Payment\/([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$" }
+            { "Get", @"^https?:\/\/[^\/]+\/Payment\/([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$" }
         };
 
         foreach (var kvp in patterns)
