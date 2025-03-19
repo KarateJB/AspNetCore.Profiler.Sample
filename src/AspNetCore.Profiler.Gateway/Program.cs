@@ -25,6 +25,7 @@ builder.Services.AddFeatureManagement();
 var featureManager = builder.Services.BuildServiceProvider().GetRequiredService<IFeatureManager>();
 if (await featureManager.IsEnabledAsync(nameof(FeatureFlags.OcelotCaching)))
 {
+    builder.Services.AddSingleton<ICacheKeyGenerator, RedisKeyGenerator>();
     builder.Services.AddSingleton<IOcelotCache<CachedResponse>, RedisCacheStore>();
 }
 
@@ -113,7 +114,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // await app.UseOcelot();
-Func<HttpContext, bool> enableOcelotWhen = (ctx) => 
+Func<HttpContext, bool> enableOcelotWhen = (ctx) =>
     ctx.Request.Path.StartsWithSegments("/payment") || ctx.Request.Path.StartsWithSegments("/demo");
 app.MapWhen(enableOcelotWhen, (app) =>
 {

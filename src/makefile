@@ -17,11 +17,13 @@ build_mvc:
 build_gw:
 		# dotnet build --verbosity minimal
 		dotnet build ./AspNetCore.Profiler.Gateway/AspNetCore.Profiler.Gateway.csproj --no-restore /clp:ErrorsOnly
-
-run_mvc: # start AspNetCore.Profiler.Mvc
+        
+# start AspNetCore.Profiler.Mvc
+run_mvc: build_mvc
 		dotnet run --project ./AspNetCore.Profiler.Mvc/AspNetCore.Profiler.Mvc.csproj --launch-profile "Dev" --property:Configuration=Debug
 
-run_gw: # start AspNetCore.Profiler.Gateway
+# start AspNetCore.Profiler.Gateway
+run_gw: build_gw
 		dotnet run --project ./AspNetCore.Profiler.Gateway/AspNetCore.Profiler.Gateway.csproj --launch-profile "Dev" --property:Configuration=Debug
 
 publish:

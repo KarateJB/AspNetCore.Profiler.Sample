@@ -15,7 +15,7 @@
         "demo_host": "localhost",
         "demo_port": "5000",
         "Redis:Name": "local",
-        "Redis:ConnectionString": "myredis:6379"
+        "Redis:ConnectionString": "localhost:6379"
       }
     }
   }

@@ -7,6 +7,7 @@
     - authorization with JWT (optional)
 - [OpenTelemetry](https://github.com/open-telemetry)
     - export: console
+- [API Gateway(Ocelot)](https://github.com/ThreeMammals/Ocelot)
 
 
 ## Database Migration
@@ -56,7 +57,7 @@ $ dotnet ef  --project ../AspNetCore.Profiler.Dal --startup-project . database u
 | 1 | https://host/profiler/results                      | GET | Profiling result for the latest request. |
 | 2 | https://host/profiler/results-index                | GET | Profiling results for stored requests. |
 | 3 | https://host/profiler/results-list                 | GET | Profiling results in JSON for stored requests. |
-| 4 | https://host/api/PaymentApi/TestOopeTelemetry/{id} | GET | Test Open Telemetry to show Trace and Span ID. |
+| 4 | https://host/api/DemoApi/TestOpenTelemetry         | GET | Test Open Telemetry to show Trace and Span ID. |
 
 
 ## Reference
