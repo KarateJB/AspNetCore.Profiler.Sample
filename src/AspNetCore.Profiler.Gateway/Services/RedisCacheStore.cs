@@ -26,6 +26,10 @@ namespace AspNetCore.Profiler.Gateway.Services
 
         public void Add(string key, CachedResponse value, TimeSpan ttl, string region)
         {
+            // Ignore if no key value, see RedisKeyGenerator.
+            if (string.IsNullOrEmpty(key))
+                return;
+
             string redisKey = RedisKey(region, key);
             if (value is not null && _redisDb != null)
             {
@@ -42,6 +46,10 @@ namespace AspNetCore.Profiler.Gateway.Services
 
         public CachedResponse Get(string key, string region)
         {
+            // Ignore if no key value, see RedisKeyGenerator.
+            if (string.IsNullOrEmpty(key))
+                return null;
+
             string redisKey = RedisKey(region, key);
             RedisValue cachedData = _redisDb != null ? _redisDb.StringGet(redisKey) : RedisValue.Null;
 

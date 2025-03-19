@@ -9,10 +9,25 @@ public class RedisKeyGenerator : ICacheKeyGenerator
 {
     private const char Delimiter = '-';
     private const string RedisKeyHeaderName = "X-Redis-Key";
+    private readonly ILogger _logger;
+
+    public RedisKeyGenerator(ILogger<RedisKeyGenerator> logger)
+    {
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    }
 
     public async ValueTask<string> GenerateRequestCacheKey(DownstreamRequest downstreamRequest, DownstreamRoute downstreamRoute)
     {
         #region Generate custom Redis Key
+
+        // Skip if the request is not a GET request.
+        string httpMethod = downstreamRequest.Method.ToUpper();
+        if (httpMethod != "GET")
+        {
+            // Skip generating Redis key for non-GET requests, this will ignore caching. See RedisCacheStore.
+            _logger.LogDebug($"Request method is {httpMethod}, skip generating Redis key.");
+            return string.Empty;
+        }
 
         // 1. Try to generate Redis key by URL parameter.
         // StringBuilder customRedisKey = await this.TryGenRedisKeyByUrlParameter(downstreamRequest);
@@ -74,6 +89,7 @@ public class RedisKeyGenerator : ICacheKeyGenerator
         Dictionary<string, string> patterns = new()
         {
             { "Get", @"^https?:\/\/[^\/]+\/Payment\/([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$" }
+            // Add more patterns here
         };
 
         foreach (var kvp in patterns)
@@ -89,6 +105,7 @@ public class RedisKeyGenerator : ICacheKeyGenerator
                         string guid = match.Groups[1].Value;
                         sbRedisKey.Append(kvp.Key).Append(":").Append(guid);
                         break;
+                    // case "AnotherPattern":
                     default:
                         break;
                 }
